@@ -122,15 +122,23 @@ Every token is semantic — `paper` is the ground, `ink` is the foreground — s
 only redefines values in a `[data-theme="dark"]` block. **No component carries a `dark:`
 variant, and none should.** The whole page flips from that one block.
 
+**Light is the default, and the OS preference is deliberately not consulted.** This
+palette is designed light-first and that is what a first-time visitor should meet, even
+on a machine set to dark. Dark is opt-in: it applies only when `localStorage.theme ===
+"dark"`, and once chosen it persists. There is no `prefers-color-scheme` listener
+anywhere — a visitor's system flipping to dark must not move a page they never set.
+
 The theme is stamped onto `<html>` by a tiny inline script in `layout.tsx` that runs
-before first paint, so a dark-mode visitor never sees a flash of the light palette. It
-is always explicitly `light` or `dark`, never absent. `<html>` carries
-`suppressHydrationWarning` because that script writes the attribute React did not render.
+before first paint, so someone who chose dark never sees a flash of light. It is always
+explicitly `light` or `dark`, never absent. `<html>` carries `suppressHydrationWarning`
+because that script writes an attribute React did not render.
 
 `ThemeToggle` reads the attribute with `useSyncExternalStore` rather than mirroring it
 into React state — the DOM is the source of truth. Which icon shows is decided in CSS
-off `[data-theme]`, so the button is correct in the server HTML before hydration. Until
-an explicit choice is stored, the OS preference is followed live.
+off `[data-theme]`, so the button is correct in the server HTML before hydration.
+
+**Testing dark mode:** seed `localStorage.theme = "dark"` and reload. Emulating
+`prefers-color-scheme: dark` does nothing, by design.
 
 Both accents lighten in dark mode: the light-mode values are tuned for dark text on a
 pale ground and lose far too much contrast when the ground inverts.
@@ -256,6 +264,61 @@ import `* as m from "motion/react-m"` and render `m.div` rather than `motion.div
 `strict` throws on the heavyweight component so the saving can't be undone by accident.
 Hooks (`useSpring`, `useReducedMotion`) still come from `motion/react`.
 
+### Keeping it from looking machine-made
+
+Kingsley's note was that the page "still looks AI generated". The tells are almost all
+*repetition and perfect regularity*, and the fixes are deliberate — do not tidy them away:
+
+- **Every section boundary uses a different curve.** `WaveDivider` holds four
+  silhouettes; `page.tsx` passes a distinct `curve` to each. One path mirrored five
+  times is spotted long before anyone can say why.
+- **Blob washes vary too.** `BlobField` holds four shapes and takes a `shapes` pair plus
+  an `offset` flag, so the same two forms don't sit in the same corners on every section.
+- **Hand-drawn marks are drawn twice.** `InkRule`, `ArrowMark` and `DrawnUnderline` each
+  lay a lighter second pass on a slightly different path, the way a pen doubles back. A
+  single mathematically clean stroke is the giveaway.
+- **Section rhythm is uneven.** Top and bottom padding differ per section rather than
+  every one being `py-28 md:py-36`. A composed page breathes differently depending on
+  what it is holding.
+- **Things sit slightly off square.** Sub-degree rotations on the status note, the AI
+  skills panel, the award chip and the project numerals; asymmetric border radii.
+- **Reveals differ per section** (below). Everything arriving the same way is the
+  motion equivalent of the same curve five times.
+
+### Per-section entrances
+
+`.reveal` is the trigger class the observer looks for; the modifier sets only the
+*starting* transform, and the shared `.reveal.is-visible` rule resolves them all to
+`none` — its two-class specificity beats every modifier, so they compose safely.
+
+| Class | Where | Feel |
+| --- | --- | --- |
+| `.reveal` | default | rise 16px |
+| `.reveal-left` | About, odd projects | drifts in from the margin, off-square |
+| `.reveal-right` | even projects | leans in from its own side |
+| `.reveal-slide` | Experience roles | out from behind the spine |
+| `.reveal-pop` | Skills groups | scatters in, overshoot easing |
+| `.reveal-tilt` | Currently cards | drops onto the dark band |
+| `.reveal-swell` | Contact address | swells rather than slides |
+
+Sibling durations are nudged by `nth-child` so a group never lands in lockstep.
+
+### The experience timeline
+
+The spine is a scroll indicator, not decoration. `TimelineProgress` writes `--progress`
+onto the track from the list's box against a line ~55% down the viewport — so it tracks
+roughly where the reader's eye is, rather than where the section edge happens to be —
+and toggles `data-reached` on each node as the fill passes it. The colour change itself
+is CSS.
+
+**Node positions are measured with `getBoundingClientRect` against the list, never
+`offsetTop`.** Each node is absolutely positioned inside its own `relative` `<li>`, so
+`offsetTop` reports a few pixels for every one of them and they all light at once. That
+bug shipped once already.
+
+Under reduced motion the track renders complete and every node reads as reached, so the
+timeline still reads as a timeline.
+
 ### Shape
 
 Organic, not rectilinear. Fluid SVG dividers instead of rules, hand-drawn stroke accents,
@@ -284,6 +347,10 @@ Preserve this — it is why the shipped JS stays small.
 
 **Accessibility is not optional.** One `h1`, ordered headings, `<section aria-labelledby>`,
 `<ol>` for the timeline, visible focus rings that are never removed, descriptive alt text.
+
+**Primary actions go full width on mobile.** CTAs stack (`flex-col sm:flex-row`) and
+each fills the column (`w-full justify-center sm:w-auto`). A pill sized to its label is
+a small target on a phone.
 
 Three traps already hit once, worth not repeating:
 

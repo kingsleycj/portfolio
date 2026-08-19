@@ -1,4 +1,5 @@
 import { Sparkle } from "@/components/art/Marks";
+import { TimelineProgress } from "@/components/motion/TimelineProgress";
 import { RevealGroup, RevealItem } from "@/components/motion/RevealGroup";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ThreadTag } from "@/components/ui/ThreadTag";
@@ -13,7 +14,7 @@ export function Experience() {
     <section
       id="experience"
       aria-labelledby="experience-heading"
-      className="relative bg-paper-deep py-28 md:py-36"
+      className="relative bg-paper-deep pb-32 pt-20 md:pb-44 md:pt-28"
     >
       <div className="wrap">
         <SectionHeading
@@ -26,18 +27,23 @@ export function Experience() {
 
         <RevealGroup
           as="ol"
-          className="mt-16 space-y-14 border-l border-dashed border-line-strong pl-8 md:mt-20 md:pl-12"
+          className="relative mt-16 space-y-14 pl-8 md:mt-20 md:pl-12"
         >
+          <TimelineProgress />
+
           {experience.map((role) => (
-            <RevealItem as="li" key={`${role.company}-${role.period}`} className="relative">
-              {/* Spine node. Filled for current roles, hollow for past ones. */}
+            <RevealItem
+              as="li"
+              key={`${role.company}-${role.period}`}
+              className="reveal-slide relative"
+            >
+              {/* Spine node. Hollow until the scroll fill reaches it, then it
+                  takes the accent — so the track reads as progress through the
+                  story rather than as decoration. */}
               <span
+                data-node
                 aria-hidden="true"
-                className={
-                  role.current
-                    ? "absolute -left-[2.35rem] top-2 h-3 w-3 rounded-full bg-terracotta ring-4 ring-paper-deep md:-left-[3.35rem]"
-                    : "absolute -left-[2.35rem] top-2 h-3 w-3 rounded-full border-2 border-line-strong bg-paper-deep md:-left-[3.35rem]"
-                }
+                className="timeline-node absolute -left-[2.4rem] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-line-strong bg-paper-deep md:-left-[3.4rem]"
               />
 
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -79,7 +85,7 @@ export function Experience() {
               </ul>
 
               {role.highlight ? (
-                <p className="text-meta mt-5 inline-flex items-center gap-2 rounded-full border border-terracotta/30 bg-paper px-3.5 py-2 text-terracotta-deep">
+                <p className="text-meta mt-5 inline-flex -rotate-[0.8deg] items-center gap-2 rounded-full border border-terracotta/30 bg-paper px-3.5 py-2 text-terracotta-deep">
                   <Sparkle className="h-3.5 w-3.5" />
                   {role.highlight}
                 </p>

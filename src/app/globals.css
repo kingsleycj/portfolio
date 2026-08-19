@@ -49,6 +49,7 @@
 
   --ease-out-soft: cubic-bezier(0.2, 0.65, 0.3, 1);
   --ease-spring: cubic-bezier(0.22, 1.2, 0.36, 1);
+  --ease-overshoot: cubic-bezier(0.18, 1.5, 0.4, 1);
 }
 
 /* ------------------------------------------------------------------
@@ -283,6 +284,71 @@
     transform 0.7s var(--ease-spring);
 }
 
+/* ---- Per-section entrances -------------------------------------------
+   Every section arriving with the same fade-and-rise is what makes a page
+   feel machine-assembled. Each of these is a starting transform only; the
+   shared `.reveal.is-visible` rule above resolves them all to `none`, and
+   its two-class specificity beats every modifier here.
+   -------------------------------------------------------------------- */
+
+/* About — paragraphs drift in from the margin, slightly off-square. */
+.reveal-left {
+  transform: translate3d(-36px, 10px, 0) rotate(-1.1deg);
+}
+
+/* Projects — alternating case studies lean in from their own side. */
+.reveal-right {
+  transform: translate3d(36px, 10px, 0) rotate(1.1deg);
+}
+
+/* Skills — tags scatter in rather than march. */
+.reveal-pop {
+  transform: scale(0.82) rotate(-3deg);
+}
+
+.reveal-pop.is-visible {
+  transition:
+    opacity 0.45s var(--ease-out-soft),
+    transform 0.62s var(--ease-overshoot);
+}
+
+/* Currently — cards drop onto the dark band like laid-down cards. */
+.reveal-tilt {
+  transform: translate3d(0, 34px, 0) rotate(-2.4deg);
+}
+
+.reveal-tilt.is-visible {
+  transition:
+    opacity 0.6s var(--ease-out-soft),
+    transform 0.8s var(--ease-overshoot);
+}
+
+/* Contact — the address swells up rather than sliding. */
+.reveal-swell {
+  transform: scale(0.94) translate3d(0, 18px, 0);
+}
+
+.reveal-swell.is-visible {
+  transition:
+    opacity 0.55s var(--ease-out-soft),
+    transform 0.85s var(--ease-overshoot);
+}
+
+/* Experience — roles arrive from behind the spine. */
+.reveal-slide {
+  transform: translate3d(-26px, 14px, 0);
+}
+
+/* Nothing should land in lockstep. A few milliseconds of drift between
+   siblings is the difference between a group and a queue. */
+.reveal-group > *:nth-child(odd).is-visible {
+  transition-duration: 0.78s;
+}
+
+.reveal-group > *:nth-child(3n).is-visible {
+  transition-duration: 0.66s;
+}
+
 /* Grid and list children enter together, so they need an explicit stagger —
    scroll order alone would reveal a whole row in one frame. */
 .reveal-group > *:nth-child(2) {
@@ -299,6 +365,30 @@
 }
 .reveal-group > *:nth-child(n + 6) {
   transition-delay: 350ms;
+}
+
+/* ------------------------------------------------------------------
+   Experience timeline
+
+   The spine doubles as a scroll indicator: the fill height is written by
+   TimelineProgress, and each node takes the accent once the fill passes it.
+   ------------------------------------------------------------------ */
+.timeline-fill {
+  height: var(--progress, 0%);
+  transition: height 120ms linear;
+}
+
+.timeline-node {
+  transition:
+    background-color 320ms var(--ease-out-soft),
+    border-color 320ms var(--ease-out-soft),
+    transform 420ms var(--ease-overshoot);
+}
+
+.timeline-node[data-reached] {
+  background-color: var(--color-terracotta);
+  border-color: var(--color-terracotta);
+  transform: scale(1.18);
 }
 
 /* Absent by default, so reduced-motion readers and any no-CSS-animation path
@@ -596,6 +686,17 @@
   .drawn-underline path {
     stroke-dasharray: none !important;
     stroke-dashoffset: 0 !important;
+  }
+
+  /* Progress styling is decoration under reduced motion; the track shows
+     complete so the timeline still reads as a timeline. */
+  .timeline-fill {
+    transition: none !important;
+  }
+
+  .timeline-node {
+    transition: none !important;
+    transform: none !important;
   }
 
   /* The rotator would flicker through its words at 0.01ms. Pin it to the

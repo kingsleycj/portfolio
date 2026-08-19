@@ -66,7 +66,10 @@ export function Nav() {
             : "border-transparent bg-transparent",
         )}
       >
-        <ul className="flex min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {/* Fades the right edge on narrow screens, so a half-visible label reads
+            as "this scrolls" rather than as a clipped bug. Removed once every
+            item fits. */}
+        <ul className="flex min-w-0 items-center gap-1 overflow-x-auto [mask-image:linear-gradient(to_right,black_calc(100%-1.75rem),transparent)] [scrollbar-width:none] sm:[mask-image:none] [&::-webkit-scrollbar]:hidden">
           {SECTIONS.map(({ id, label }) => {
             const isActive = active === id;
             return (

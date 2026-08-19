@@ -12,7 +12,7 @@ export function Projects() {
     <section
       id="projects"
       aria-labelledby="projects-heading"
-      className="relative py-28 md:py-36"
+      className="relative pb-24 pt-28 md:pb-32 md:pt-40"
     >
       <div className="wrap">
         <SectionHeading
@@ -32,7 +32,10 @@ export function Projects() {
             const metaFirst = index % 2 === 0;
 
             return (
-              <Reveal key={project.slug}>
+              <Reveal
+                key={project.slug}
+                className={metaFirst ? "reveal-left" : "reveal-right"}
+              >
                 <Spotlight
                   tint={
                     isAi
@@ -50,7 +53,7 @@ export function Projects() {
                       <div className="flex items-start justify-between gap-4">
                         <p
                           aria-hidden="true"
-                          className="text-display text-[3.5rem] leading-none text-watermark"
+                          className="text-display -rotate-[1.5deg] text-[3.5rem] leading-none text-watermark"
                         >
                           {String(index + 1).padStart(2, "0")}
                         </p>
@@ -123,7 +126,7 @@ export function Projects() {
                       </div>
 
                       {project.status ? (
-                        <p className="prose-narrow mt-7 rounded-2xl border border-dashed border-line-strong bg-paper-deep/60 px-5 py-4 text-sm text-ink-soft">
+                        <p className="prose-narrow mt-7 -rotate-[0.4deg] rounded-[1.5rem_0.75rem_1.5rem_0.75rem] border border-dashed border-line-strong bg-paper-deep/60 px-5 py-4 text-sm text-ink-soft">
                           <span className="text-meta mr-2 text-ink-faint">
                             Status
                           </span>

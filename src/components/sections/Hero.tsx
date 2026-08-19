@@ -94,12 +94,12 @@ export function Hero() {
           </p>
 
           <div
-            className="hero-rise mt-10 flex flex-wrap items-center gap-4"
+            className="hero-rise mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
             style={{ animationDelay: "380ms" }}
           >
             <MagneticButton
               href="#projects"
-              className="text-meta group rounded-full bg-ink px-6 py-4 text-paper transition-colors duration-200 hover:bg-terracotta-deep"
+              className="text-meta group w-full justify-center rounded-full bg-ink px-6 py-4 text-paper transition-colors duration-200 hover:bg-terracotta-deep sm:w-auto"
             >
               See what I&rsquo;ve built
               <ArrowMark className="transition-transform duration-300 group-hover:translate-x-1" />
@@ -109,7 +109,7 @@ export function Hero() {
               href={profile.resumePath}
               download
               strength={5}
-              className="text-meta rounded-full border border-line-strong px-6 py-4 text-ink transition-colors duration-200 hover:border-terracotta hover:text-terracotta-deep"
+              className="text-meta w-full justify-center rounded-full border border-line-strong px-6 py-4 text-ink transition-colors duration-200 hover:border-terracotta hover:text-terracotta-deep sm:w-auto"
             >
               Take my résumé
             </MagneticButton>

@@ -116,13 +116,18 @@ export default function RootLayout({
       className={`${bricolage.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <head>
-        {/* Stamps the theme onto <html> before the first paint, so a dark-mode
-            visitor never sees a flash of the light palette. Kept inline and
-            tiny on purpose — a deferred script would paint light first. */}
+        {/* Stamps the theme onto <html> before the first paint, so a visitor who
+            chose dark never sees a flash of light. Kept inline and tiny on
+            purpose — a deferred script would paint the wrong theme first.
+
+            Light is the default: dark applies only when it has been explicitly
+            chosen and stored. The OS preference is deliberately NOT consulted —
+            this palette is designed light-first, and that is what a first-time
+            visitor should meet. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{var s=localStorage.getItem('theme');var d=s?s==='dark':matchMedia('(prefers-color-scheme:dark)').matches;document.documentElement.dataset.theme=d?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}})()",
+              "(function(){try{document.documentElement.dataset.theme=localStorage.getItem('theme')==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}})()",
           }}
         />
         {/* Motion server-renders `opacity: 0` on scroll reveals. Without JavaScript

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -11,6 +11,10 @@ type Theme = "light" | "dark";
  * layout.tsx before first paint. That makes it external state, so it is read
  * with `useSyncExternalStore` rather than mirrored into React state — the
  * button stays correct even if the attribute is changed from anywhere else.
+ *
+ * Light is the default and the OS preference is not consulted; dark is opt-in
+ * and, once chosen, persists. So there is no media-query listener here — a
+ * visitor's system flipping to dark should not move a page they never set.
  */
 function subscribe(onChange: () => void) {
   const observer = new MutationObserver(onChange);
@@ -48,22 +52,6 @@ export function ThemeToggle({ className }: { className?: string }) {
       // page view, it just will not be remembered.
     }
     window.setTimeout(() => root.classList.remove("theme-transition"), 320);
-  }, []);
-
-  // Until an explicit choice is made, keep following the OS. Mutating the
-  // attribute is enough — the observer above propagates it back into React.
-  useEffect(() => {
-    const query = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = (event: MediaQueryListEvent) => {
-      try {
-        if (localStorage.getItem("theme")) return;
-      } catch {
-        return;
-      }
-      document.documentElement.dataset.theme = event.matches ? "dark" : "light";
-    };
-    query.addEventListener("change", onChange);
-    return () => query.removeEventListener("change", onChange);
   }, []);
 
   return (

@@ -29,19 +29,19 @@ export default function Home() {
         <Marquee />
         <About />
 
-        <WaveDivider from={PAPER} fill={PAPER_DEEP} depth="soft" />
+        <WaveDivider from={PAPER} fill={PAPER_DEEP} depth="soft" curve={1} />
         <Experience />
 
-        <WaveDivider from={PAPER_DEEP} fill={PAPER} depth="soft" flip />
+        <WaveDivider from={PAPER_DEEP} fill={PAPER} depth="soft" curve={2} />
         <Projects />
 
-        <WaveDivider from={PAPER} fill={PAPER_DEEP} depth="soft" />
+        <WaveDivider from={PAPER} fill={PAPER_DEEP} depth="soft" curve={3} flip />
         <Skills />
 
-        <WaveDivider from={PAPER_DEEP} fill={ESPRESSO} />
+        <WaveDivider from={PAPER_DEEP} fill={ESPRESSO} curve={0} />
         <Currently />
 
-        <WaveDivider from={ESPRESSO} fill={PAPER} flip />
+        <WaveDivider from={ESPRESSO} fill={PAPER} curve={2} flip />
         <Contact />
       </main>
       <Footer />

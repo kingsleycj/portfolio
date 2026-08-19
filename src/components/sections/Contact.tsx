@@ -12,9 +12,9 @@ export function Contact() {
     <section
       id="contact"
       aria-labelledby="contact-heading"
-      className="relative overflow-hidden py-28 md:py-36"
+      className="relative overflow-hidden pb-24 pt-28 md:pb-28 md:pt-44"
     >
-      <BlobField variant="soft" />
+      <BlobField variant="soft" shapes={[2, 3]} offset />
 
       <div className="wrap">
         <SectionHeading
@@ -34,7 +34,7 @@ export function Contact() {
 
         {/* The address steps down to h3 on narrow screens: at h2 it is wider than
             a phone viewport and would be clipped by the page's overflow guard. */}
-        <Reveal className="mt-12">
+        <Reveal className="reveal-swell mt-12">
           <a
             href={`mailto:${profile.email}`}
             className="text-h3 sm:text-h2 group inline-flex flex-wrap items-center gap-3 break-words text-ink transition-colors duration-200 hover:text-terracotta-deep"
@@ -83,7 +83,7 @@ export function Contact() {
               href={profile.resumePath}
               download
               strength={5}
-              className="text-meta mt-2 rounded-full bg-ink px-5 py-3 text-paper transition-colors duration-200 hover:bg-terracotta-deep"
+              className="text-meta mt-2 w-full justify-center rounded-full bg-ink px-5 py-3 text-paper transition-colors duration-200 hover:bg-terracotta-deep sm:w-auto"
             >
               Download PDF
               <ArrowMark className="h-3.5 w-3.5 rotate-90" />

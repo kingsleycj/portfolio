@@ -49,7 +49,10 @@ copied from have been removed. Replace them in place to update the site.
 
 ## Themes
 
-Light and dark are both first-class. Every colour is a semantic token in
+**Light is the default.** Dark is opt-in via the toggle and remembered per browser; the
+OS setting is not consulted, so a first-time visitor always meets the light palette.
+
+Every colour is a semantic token in
 `src/app/globals.css` (`paper` is the ground, `ink` the foreground), and dark mode only
 redefines those values — **no component has a `dark:` variant**. To adjust dark mode,
 edit the `[data-theme="dark"]` block, nothing else.

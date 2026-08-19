@@ -52,6 +52,21 @@ export function DrawnUnderline({
           viewport={viewportOnce}
           transition={{ duration: 0.8, ease: easeOutSoft, delay }}
         />
+        {/* A lighter second pass, offset and drawn a beat later — the way a
+            hand goes back over an underline rather than landing it once. */}
+        <m.path
+          d="M6,10.4 C40,6.6 78,11.6 112,8.4 C142,5.6 168,9.8 194,7.2"
+          fill="none"
+          stroke={color}
+          strokeWidth={1.4}
+          strokeLinecap="round"
+          opacity={0.5}
+          vectorEffect="non-scaling-stroke"
+          initial={{ pathLength: 0 }}
+          whileInView={{ pathLength: 1 }}
+          viewport={viewportOnce}
+          transition={{ duration: 0.7, ease: easeOutSoft, delay: delay + 0.18 }}
+        />
       </svg>
     </span>
   );

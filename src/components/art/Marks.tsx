@@ -7,6 +7,11 @@ interface MarkProps {
 /**
  * Hand-drawn line-art accents, in place of a stock icon set.
  * All decorative — hidden from assistive tech and inert to pointers.
+ *
+ * Several are drawn with two overlapping passes at different opacities and
+ * slightly different paths, the way a pen doubles back over a line. A single
+ * mathematically clean stroke is the giveaway: real pen marks are never
+ * symmetrical and never land twice in the same place.
  */
 
 /** A six-point spark. Marks the "currently" signal and standout moments. */
@@ -44,6 +49,8 @@ export function ArrowMark({ className }: MarkProps) {
     >
       <path d="M4.5 12.4c5.8.4 11.6.2 15.2-.4" />
       <path d="M14.8 7.2c1.8 2.4 3.4 4 4.9 4.8-1.8.9-3.4 2.4-4.6 4.6" />
+      {/* Faint second pass on the shaft — the pen going back over it. */}
+      <path d="M5.4 13.2c5.4-.1 10.8-.3 14.1-.7" strokeWidth={0.8} opacity={0.4} />
     </svg>
   );
 }
@@ -83,13 +90,18 @@ export function InkRule({ className }: MarkProps) {
       preserveAspectRatio="none"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.5}
       strokeLinecap="round"
       className={cn("h-2 w-full", className)}
       focusable="false"
       aria-hidden="true"
     >
-      <path d="M2 5.2C46 2.4 92 6.4 136 3.6c34-2.2 68 1.6 102 1.2" />
+      {/* Two passes, neither quite on top of the other. */}
+      <path d="M2 5.2C46 2.4 92 6.4 136 3.6c34-2.2 68 1.6 102 1.2" strokeWidth={1.5} />
+      <path
+        d="M5 4.4C52 6.1 88 2.9 132 5.4c36 2 70-1.4 104 .4"
+        strokeWidth={0.9}
+        opacity={0.45}
+      />
     </svg>
   );
 }

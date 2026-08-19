@@ -29,7 +29,7 @@ export function Currently() {
 
         <RevealGroup as="ul" className="mt-14 grid gap-10 md:grid-cols-3">
           {currently.map((item) => (
-            <RevealItem as="li" key={item.label}>
+            <RevealItem as="li" key={item.label} className="reveal-tilt">
               <Sparkle
                 className={
                   item.thread === "ai"

@@ -10,7 +10,7 @@ export function About() {
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="relative py-28 md:py-36"
+      className="relative pb-24 pt-24 md:pb-40 md:pt-32"
     >
       <div className="wrap">
         <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
@@ -24,14 +24,14 @@ export function About() {
 
             <RevealGroup className="prose-narrow mt-10 space-y-6">
               {about.body.map((paragraph) => (
-                <RevealItem key={paragraph} as="p" className="text-ink-soft">
+                <RevealItem key={paragraph} as="p" className="reveal-left text-ink-soft">
                   {paragraph}
                 </RevealItem>
               ))}
             </RevealGroup>
 
             {/* The closing beat, set as a list so each clause lands separately. */}
-            <Reveal className="mt-10">
+            <Reveal className="reveal-left mt-10">
               <ul className="space-y-2 border-l-2 border-terracotta pl-6">
                 {about.closing.map((line) => (
                   <li key={line} className="text-h3 text-ink">

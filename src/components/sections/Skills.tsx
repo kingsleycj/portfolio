@@ -14,7 +14,7 @@ export function Skills() {
     <section
       id="skills"
       aria-labelledby="skills-heading"
-      className="relative bg-paper-deep py-28 md:py-36"
+      className="relative bg-paper-deep pb-28 pt-24 md:pb-36 md:pt-28"
     >
       <div className="wrap">
         <SectionHeading
@@ -37,8 +37,9 @@ export function Skills() {
                 as="li"
                 key={group.title}
                 className={cn(
+                  "reveal-pop",
                   isAi &&
-                    "rounded-[2.5rem_1rem_2.5rem_1rem] border border-verdigris/25 bg-verdigris-wash/70 p-8 md:row-span-2 md:-mt-4",
+                    "-rotate-[0.5deg] rounded-[2.5rem_1rem_2.75rem_1.25rem] border border-verdigris/25 bg-verdigris-wash/70 p-8 md:row-span-2 md:-mt-6",
                 )}
               >
                 <div className="flex items-start justify-between gap-4">
