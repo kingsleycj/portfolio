@@ -43,8 +43,8 @@
      56px glyphs; this clears the 3:1 floor for large text. */
   --color-watermark: #8a8079;
 
-  --font-display: var(--font-bricolage), "Trebuchet MS", ui-sans-serif, sans-serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-syne), "Trebuchet MS", ui-sans-serif, sans-serif;
+  --font-sans: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", monospace;
 
   --ease-out-soft: cubic-bezier(0.2, 0.65, 0.3, 1);
@@ -109,8 +109,10 @@
     background-color: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    font-size: 1rem;
-    line-height: 1.7;
+    /* Syne's x-height is modest; 1.0625rem holds the same reading colour that
+       1rem gave the previous grotesque. */
+    font-size: 1.0625rem;
+    line-height: 1.68;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     /* Blob art is positioned off-canvas by design; never let it scroll the page. */
@@ -160,21 +162,19 @@
    ------------------------------------------------------------------ */
 @utility text-display {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-variation-settings: "wdth" 85;
-  /* The 16vw middle term is deliberately aggressive: the masthead should
-     dominate the small-screen hero, and it keeps the name — cheap,
-     already-painted text — larger than the portrait, so LCP lands on it
-     rather than on an image that has to travel the network first. */
-  font-size: clamp(3.5rem, 16vw, 9rem);
-  line-height: 0.9;
-  letter-spacing: -0.035em;
+  font-weight: 800;
+  /* Syne 800 sets much wider than a grotesque at the same size, so the ceiling
+     is lower than it looks. The aggressive vw term still holds on small
+     screens, where the masthead should dominate and where keeping the name
+     larger than the portrait puts LCP on cheap text rather than an image. */
+  font-size: clamp(2.75rem, 13vw, 7rem);
+  line-height: 0.88;
+  letter-spacing: -0.04em;
 }
 
 @utility text-h2 {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-variation-settings: "wdth" 90;
+  font-weight: 700;
   font-size: clamp(2.25rem, 5vw, 3.75rem);
   line-height: 1.02;
   letter-spacing: -0.02em;
@@ -182,8 +182,7 @@
 
 @utility text-h3 {
   font-family: var(--font-display);
-  font-weight: 500;
-  font-variation-settings: "wdth" 95;
+  font-weight: 600;
   font-size: clamp(1.375rem, 2.5vw, 1.875rem);
   line-height: 1.15;
   letter-spacing: -0.01em;
@@ -238,6 +237,163 @@
     opacity: 0.32;
     transform: skewX(-8deg) rotate(-0.6deg);
     z-index: -1;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Hero stage — CSS 3D
+
+   HeroStage publishes the pointer as --px / --py (about -1..1). Every layer
+   multiplies those by its own --depth, so one listener drives the whole
+   parallax and the layers separate as the cursor moves. All transform-only:
+   nothing here can shift layout.
+   ------------------------------------------------------------------ */
+.hero-stage {
+  --px: 0;
+  --py: 0;
+  perspective: 1200px;
+  perspective-origin: 50% 42%;
+  transform-style: preserve-3d;
+}
+
+.parallax {
+  --depth: 20;
+  transform: translate3d(
+    calc(var(--px) * var(--depth) * -1px),
+    calc(var(--py) * var(--depth) * -0.6px),
+    0
+  );
+  /* No `will-change` here on purpose. Nine permanently-promoted layers cost
+     real memory and compositing for no gain — a 3D translate already promotes
+     while it is actually moving. */
+}
+
+/* Receding dot floor. Rotated flat and faded out toward the horizon so it
+   reads as ground rather than as wallpaper. */
+.hero-floor {
+  position: absolute;
+  inset: auto 0 -12% 0;
+  height: 58%;
+  /* Its own perspective rather than the stage's. An ancestor with
+     `overflow: hidden` forces `transform-style: flat`, which silently
+     collapses any 3D inherited from further up — the floor rendered as a
+     squashed 2D grid until this moved local. */
+  perspective: 640px;
+  perspective-origin: 50% 0%;
+}
+
+.hero-floor-plane {
+  position: absolute;
+  inset: 0 -30% -30% -30%;
+  transform: rotateX(72deg);
+  transform-origin: 50% 0%;
+  background-image: radial-gradient(
+    var(--color-terracotta) 1.6px,
+    transparent 1.6px
+  );
+  background-size: 38px 38px;
+  /* Masks the dots themselves rather than laying an opaque gradient over the
+     hero. An overlay has to be a solid colour somewhere, and that showed as a
+     hard horizontal seam across the middle of the section. Measured cost of
+     the whole 3D scene is ~0.1s of Speed Index, so the mask is affordable.
+
+     The plane is rotated from its top edge, so its bottom edge is the far one:
+     fading toward the bottom fades toward the horizon. */
+  mask-image: linear-gradient(to bottom, black 6%, transparent 68%);
+  opacity: 0.3;
+}
+
+/* Wireframe prism. Six bordered faces, no fill — a solid would read as a box,
+   the wireframe reads as structure. */
+.prism {
+  --size: 108px;
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  transform-style: preserve-3d;
+  /* Local perspective, for the same reason as the floor. Without it the faces
+     project in parallel and the cube reads flat-isometric. */
+  perspective: 520px;
+}
+
+.prism-sm {
+  --size: 68px;
+}
+
+.prism-face {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--color-terracotta);
+  opacity: 0.4;
+}
+
+.prism-front {
+  transform: translateZ(calc(var(--size) / 2));
+}
+.prism-back {
+  transform: rotateY(180deg) translateZ(calc(var(--size) / 2));
+}
+.prism-right {
+  transform: rotateY(90deg) translateZ(calc(var(--size) / 2));
+}
+.prism-left {
+  transform: rotateY(-90deg) translateZ(calc(var(--size) / 2));
+}
+.prism-top {
+  transform: rotateX(90deg) translateZ(calc(var(--size) / 2));
+  border-color: var(--color-verdigris);
+}
+.prism-bottom {
+  transform: rotateX(-90deg) translateZ(calc(var(--size) / 2));
+  border-color: var(--color-verdigris);
+}
+
+/* The portrait sits in its own perspective and tips toward the cursor, so it
+   reads as a card standing in the scene rather than a picture pasted on it. */
+.portrait-stage {
+  perspective: 900px;
+}
+
+.portrait-card {
+  transform-style: preserve-3d;
+  transition: transform 600ms var(--ease-spring);
+}
+
+/* A warm shadow rather than a border: it gives the card weight in the scene
+   without drawing a second edge around the arch. */
+.portrait-photo {
+  box-shadow:
+    0 2px 6px rgba(26, 21, 18, 0.06),
+    0 18px 40px -18px rgba(26, 21, 18, 0.42);
+}
+
+[data-theme="dark"] .portrait-photo {
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 22px 48px -20px rgba(0, 0, 0, 0.7);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .portrait-stage:hover .portrait-card {
+    transform: rotateY(-9deg) rotateX(5deg) translateZ(26px) rotate(-2deg);
+  }
+}
+
+@keyframes prism-tumble {
+  from {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(360deg) rotateY(360deg);
+  }
+}
+
+@keyframes prism-tumble-reverse {
+  from {
+    transform: rotateX(0deg) rotateY(360deg);
+  }
+  to {
+    transform: rotateX(-360deg) rotateY(0deg);
   }
 }
 
@@ -460,23 +616,24 @@
 
 /* Word rotator. Each word holds, lifts out, and the next drops in. The stack
    is absolutely positioned inside a fixed-height box, so nothing reflows. */
-/* Four phrases, each offset by 25% of the cycle. The visible window runs
-   3%–25% so the outgoing phrase is still fading as the next one arrives —
-   a crossfade rather than a gap with nothing on screen. */
+/* Four phrases, each offset by a quarter of the cycle. The opaque window runs
+   4%–23% — about 3 seconds at the default 16s cycle — so a phrase can actually
+   be read rather than glimpsed. It closes before the next one opens, so two are
+   never legible at once. */
 @keyframes rotate-word {
   0% {
     opacity: 0;
-    transform: translate3d(0, 70%, 0);
+    transform: translate3d(0, 60%, 0);
   }
-  3%,
-  25% {
+  4%,
+  23% {
     opacity: 1;
     transform: none;
   }
-  28%,
+  27%,
   100% {
     opacity: 0;
-    transform: translate3d(0, -70%, 0);
+    transform: translate3d(0, -60%, 0);
   }
 }
 
@@ -617,8 +774,20 @@
     animation: marquee-slide 42s linear infinite;
   }
 
+  .prism {
+    animation: prism-tumble 26s linear 2.2s infinite;
+  }
+
+  /* Everything decorative in the hero stops once the hero is off screen.
+     These run forever otherwise, and a tumbling 3D wireframe nobody can see
+     is pure cost. */
+  .hero-idle .prism {
+    animation-play-state: paused;
+  }
+
   .rotator-word {
-    animation: rotate-word 9.6s var(--ease-spring) infinite both;
+    animation: rotate-word var(--rotator-cycle, 16s) var(--ease-spring)
+      infinite both;
   }
 
   .rotator-caret {

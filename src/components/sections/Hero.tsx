@@ -2,7 +2,9 @@ import Image from "next/image";
 
 import portrait from "@/assets/kingsley.jpg";
 import { BlobField } from "@/components/art/BlobField";
+import { HeroDepth } from "@/components/art/HeroDepth";
 import { ArrowMark, Sparkle } from "@/components/art/Marks";
+import { HeroStage } from "@/components/motion/HeroStage";
 import { KineticName } from "@/components/motion/KineticName";
 import { MagneticButton } from "@/components/motion/MagneticButton";
 import { Rotator } from "@/components/motion/Rotator";
@@ -28,8 +30,11 @@ export function Hero() {
       className="relative flex min-h-svh flex-col justify-center overflow-hidden pb-20 pt-32 md:pt-36"
     >
       <BlobField />
+      <HeroStage className="absolute inset-0">
+        <HeroDepth />
+      </HeroStage>
 
-      <div className="wrap">
+      <div className="wrap relative z-10">
         <div
           className="hero-rise text-meta flex flex-wrap items-center gap-x-4 gap-y-2"
           style={{ animationDelay: "40ms" }}
@@ -43,11 +48,16 @@ export function Hero() {
         </div>
 
         <div className="relative mt-8 lg:mt-10">
-          <div className="mb-10 w-32 sm:w-40 lg:absolute lg:right-0 lg:top-1/2 lg:mb-0 lg:w-[19rem] lg:-translate-y-1/2 xl:w-[22rem]">
-            <div className="relative -rotate-2">
+          <div className="portrait-stage mb-10 w-32 sm:w-40 lg:absolute lg:right-0 lg:top-1/2 lg:mb-0 lg:w-[19rem] lg:-translate-y-1/2 xl:w-[22rem]">
+            {/* A solid arch sitting behind the photo rather than a thin outline
+                offset from it. The old hairline read as a stray stroke where it
+                left the curve; a printed colour block reads as intentional, and
+                because it stays put while the card tips on hover it doubles as
+                the depth cue. */}
+            <div className="portrait-card relative -rotate-2">
               <div
                 aria-hidden="true"
-                className="absolute inset-0 translate-x-2 translate-y-2 rounded-[999px_999px_1.25rem_1.25rem] border border-terracotta lg:translate-x-3 lg:translate-y-3 lg:border-2"
+                className="absolute inset-0 translate-x-2.5 translate-y-3 rotate-[1.5deg] rounded-[999px_999px_1.5rem_1.5rem] bg-terracotta-wash lg:translate-x-4 lg:translate-y-4"
               />
               <Image
                 src={portrait}
@@ -55,7 +65,7 @@ export function Hero() {
                 priority
                 placeholder="blur"
                 sizes="(min-width: 1280px) 22rem, (min-width: 1024px) 19rem, (min-width: 640px) 10rem, 8rem"
-                className="relative rounded-[999px_999px_1.25rem_1.25rem] object-cover"
+                className="portrait-photo relative rounded-[999px_999px_1.5rem_1.5rem] object-cover"
               />
             </div>
           </div>
@@ -65,7 +75,7 @@ export function Hero() {
           <h1
             id="hero-heading"
             aria-label={profile.name}
-            className="text-display hero-rise-solid text-ink"
+            className="text-display hero-rise-solid text-ink lg:max-w-[58%]"
             style={{ animationDelay: "60ms" }}
           >
             <KineticName

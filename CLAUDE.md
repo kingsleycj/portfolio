@@ -148,19 +148,27 @@ pale ground and lose far too much contrast when the ground inverts.
 Loaded with `next/font/google` in `src/app/layout.tsx`, `display: 'swap'`, exposed as
 CSS variables and mapped to `--font-*` theme tokens.
 
-- **Bricolage Grotesque** (variable, `wdth` only) — display. Deliberately irregular;
-  this is where the handcrafted feel comes from.
-- **Inter** — prose. Neutral and quiet so Bricolage carries the character.
+**Exactly two families. Do not add a third.**
+
+- **Syne** — display *and* body. Chosen as the closest freely-licensed match to
+  Aalto Display, which Kingsley referenced: organic, architectural letterforms that
+  "reach upwards". Its 400 is a calm geometric sans for prose; 700/800 turn wide and
+  characterful for the masthead. One family covering both is what keeps the page
+  reading as designed rather than assembled.
 - **JetBrains Mono** — dates, tags, section numbers, micro-labels. The engineering
   signal. Uppercase, tracked, small. Used sparingly.
 
+Syne ships as static weights, so there is **no variable axis to set** — any
+`font-variation-settings` here is dead code. Syne 800 also sets far wider than a
+grotesque at the same size, which is why `text-display` tops out at 7rem rather than 9.
+
 | Role | Spec |
 | --- | --- |
-| Display (name) | Bricolage 600, `wdth 85`, `clamp(3.5rem, 16vw, 9rem)`, lh .92, tracking -.03em |
-| Section h2 | Bricolage 600, `wdth 90`, `clamp(2.25rem, 5vw, 3.75rem)`, tracking -.02em |
-| h3 | Bricolage 500, `clamp(1.375rem, 2.5vw, 1.875rem)` |
-| Lead | Inter 400, `clamp(1.125rem, 1.6vw, 1.375rem)`, lh 1.6 |
-| Body | Inter 400, 1rem, lh 1.7, max 68ch |
+| Display (name) | Syne 800, `clamp(2.75rem, 13vw, 7rem)`, lh .88, tracking -.04em |
+| Section h2 | Syne 700, `clamp(2.25rem, 5vw, 3.75rem)`, tracking -.02em |
+| h3 | Syne 600, `clamp(1.375rem, 2.5vw, 1.875rem)` |
+| Lead | Syne 400, `clamp(1.125rem, 1.6vw, 1.375rem)`, lh 1.6 |
+| Body | Syne 400, 1.0625rem, lh 1.68, max 68ch |
 | Meta / tag | JetBrains Mono 500, .75rem, tracking .12em, uppercase |
 
 `text-display`, `text-h2`, `text-h3`, `text-lead` and `text-meta` are declared with
@@ -238,6 +246,43 @@ layer, no repaint.
 Shared easings and variants live in `src/lib/motion.ts`. Import from there rather than
 writing per-component transition objects.
 
+### The 3D hero
+
+`HeroStage` establishes a perspective and publishes the pointer as `--px` / `--py`
+(about -1..1). Every layer inside reads those and multiplies by its own `--depth`, so
+**one rAF-throttled listener drives the whole parallax** — no per-layer JavaScript, no
+layout reads. Layers: a receding dot floor, a tumbling wireframe prism, and the portrait,
+which tips in its own perspective on hover.
+
+Floating tech-name chips were built and then **removed at Kingsley's request** —
+they read as clutter around the masthead. Do not reintroduce them.
+
+**CSS 3D, deliberately not WebGL.** A canvas renderer would put ~150KB and a render
+loop back on the main thread, undoing the work spent taking it off.
+
+Three traps, each hit once:
+
+- **`overflow: hidden` on an ancestor forces `transform-style: flat`**, silently
+  collapsing any 3D inherited from further up. The floor and the prism therefore carry
+  their **own local `perspective`** rather than relying on the stage's. Do not "tidy"
+  those away.
+- **Parallax and float cannot share an element** — both write `transform`, so the
+  animation simply cancels the parallax. Anything that needs to both drift and
+  parallax has to be two nested elements.
+- **The masthead letters are `inline-block` spans**, so a line will break between any
+  two of them. Each line needs `whitespace-nowrap` or the name wraps as "Kingsle / y".
+
+Costs measured, not assumed: the whole 3D scene is worth ~0.1s of Speed Index and
+~200ms of blocking time. `backdrop-filter` and permanent `will-change` were both
+removed — expensive for no visible gain. Decorative animation is delayed past the
+opening sequence so it never competes with hydration, and pauses via `.hero-idle`
+once the hero scrolls away.
+
+**The portrait frame is a solid arch block, not an outline.** An offset hairline was
+tried first and read as a stray stroke where it left the curve. The block sits still
+while the card tips on hover, so it doubles as the depth cue; a warm `box-shadow` gives
+weight without drawing a second edge.
+
 ### The opening sequence
 
 `Curtain.tsx` runs for ~2.05s: a hand-drawn node graph assembles — points appear, edges
@@ -250,9 +295,14 @@ it contributes no LCP candidate (an inline `<svg>` path is not one) while Chrome
 ignores occlusion — so covering the hero does not delay the hero's measurement.
 
 It **does** cost Speed Index, which measures visual completeness over time — any covering
-overlay hurts it by definition. Measured: SI 1.76s at ~1.15s of curtain, 2.96s at ~2.05s,
-for one point of Lighthouse Performance. That was judged worth it for having a real
-opening rather than a flash. Lengthen it further and the cost keeps climbing.
+overlay hurts it by definition, and **it is by far the largest performance cost on the
+page**. Measured directly by disabling it: SI 5.22s with the sequence, 2.80s without —
+roughly 10 Lighthouse points. Neither the font nor the 3D scene moved the number
+meaningfully; both were A/B tested and ruled out.
+
+Kingsley asked for 1–2s and this sits at the top of that range. If Performance ever
+needs to come back, **shorten this first** — it is the single biggest lever, and nothing
+else on the page comes close.
 
 Under `prefers-reduced-motion` it is removed outright (`display: none`) rather than
 shortened. The wave hangs *below* the panel, filled in the panel's own colour — inside
@@ -302,6 +352,11 @@ Kingsley's note was that the page "still looks AI generated". The tells are almo
 | `.reveal-swell` | Contact address | swells rather than slides |
 
 Sibling durations are nudged by `nth-child` so a group never lands in lockstep.
+
+**The hero rotator runs on a 16s cycle** — four seconds a phrase, of which ~3s is fully
+opaque. `CYCLE_SECONDS` in `Rotator.tsx` is the single source: it sets the per-word
+offsets and publishes `--rotator-cycle` for the CSS animation, so the two cannot drift.
+It was 9.6s and too fast to read comfortably. Never let two phrases be legible at once.
 
 ### The experience timeline
 

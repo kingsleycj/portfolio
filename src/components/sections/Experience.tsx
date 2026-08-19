@@ -84,9 +84,12 @@ export function Experience() {
                 ))}
               </ul>
 
+              {/* Wraps to about four lines on a phone, where a pill shape and a
+                  centred 14px mark both stop working — so it becomes a block with
+                  the mark sized up and aligned to the first line. */}
               {role.highlight ? (
-                <p className="text-meta mt-5 inline-flex -rotate-[0.8deg] items-center gap-2 rounded-full border border-terracotta/30 bg-paper px-3.5 py-2 text-terracotta-deep">
-                  <Sparkle className="h-3.5 w-3.5" />
+                <p className="text-meta mt-5 inline-flex -rotate-[0.8deg] items-start gap-3 rounded-2xl border border-terracotta/30 bg-paper px-4 py-3 text-terracotta-deep sm:items-center sm:gap-2 sm:rounded-full sm:px-3.5 sm:py-2">
+                  <Sparkle className="mt-0.5 h-5 w-5 shrink-0 sm:mt-0 sm:h-3.5 sm:w-3.5" />
                   {role.highlight}
                 </p>
               ) : null}

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Inter, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono, Syne } from "next/font/google";
 
 import { Curtain } from "@/components/layout/Curtain";
 import { MotionProvider } from "@/components/motion/MotionProvider";
@@ -8,22 +8,16 @@ import { profile } from "@/content/profile";
 
 import "./globals.css";
 
-const bricolage = Bricolage_Grotesque({
+/**
+ * Two families, no more. Syne carries display *and* body — its 400 is a calm
+ * geometric sans while 700/800 turn wide and organic, so one family covers the
+ * whole range and the page reads as designed rather than assembled.
+ */
+const syne = Syne({
   subsets: ["latin"],
-  variable: "--font-bricolage",
+  variable: "--font-syne",
   display: "swap",
-  // Only `wdth` is used by the type scale. Dropping `opsz` roughly halves the
-  // variable font payload, which was the single largest asset on the page.
-  axes: ["wdth"],
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-  // Stays preloaded. Deferring it measured no LCP improvement (3.50s either
-  // way) and only moved the noisy TBT figure — not worth a visible swap on
-  // every line of body copy.
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -113,7 +107,7 @@ export default function RootLayout({
       lang="en"
       // The theme script below sets data-theme before React hydrates.
       suppressHydrationWarning
-      className={`${bricolage.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${syne.variable} ${jetbrainsMono.variable}`}
     >
       <head>
         {/* Stamps the theme onto <html> before the first paint, so a visitor who

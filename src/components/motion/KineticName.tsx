@@ -125,7 +125,7 @@ export function KineticName({
         <span
           key={line}
           aria-hidden="true"
-          className={cn("block", lineClassNames?.[lineIdx])}
+          className={cn("block whitespace-nowrap", lineClassNames?.[lineIdx])}
         >
           {line.split("").map((char, i) => (
             <span
