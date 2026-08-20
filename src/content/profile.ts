@@ -19,6 +19,21 @@ export const rotatorWords = [
   "whatever I haven't tried yet",
 ] as const;
 
+/**
+ * The masthead lines, separate from `profile.name`.
+ *
+ * The big type is a display choice; metadata, JSON-LD and the footer keep the
+ * full legal name. Swap the second line here to try a variant without touching
+ * anything that search engines or a recruiter's PDF will read.
+ *
+ * `indent` is how far the second line is thrown off the grid on large screens.
+ * A short second line wants a bigger push — otherwise it just looks stranded.
+ */
+export const masthead = {
+  lines: ["Kingsley", "Nweke"],
+  indent: "lg:ml-[13%]",
+} as const;
+
 export const profile = {
   name: "Kingsley Nweke",
   /** Feeds the metadata description, so the page's promise and its search

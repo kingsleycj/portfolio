@@ -8,7 +8,12 @@ import { HeroStage } from "@/components/motion/HeroStage";
 import { KineticName } from "@/components/motion/KineticName";
 import { MagneticButton } from "@/components/motion/MagneticButton";
 import { Rotator } from "@/components/motion/Rotator";
-import { profile, rotatorWords, valuePropParts } from "@/content/profile";
+import {
+  masthead,
+  profile,
+  rotatorWords,
+  valuePropParts,
+} from "@/content/profile";
 
 /**
  * An editorial masthead rather than a two-column split.
@@ -79,8 +84,8 @@ export function Hero() {
             style={{ animationDelay: "60ms" }}
           >
             <KineticName
-              lines={["Kingsley", "Nweke"]}
-              lineClassNames={[undefined, "lg:ml-[13%]"]}
+              lines={[...masthead.lines]}
+              lineClassNames={[undefined, masthead.indent]}
             />
           </h1>
         </div>

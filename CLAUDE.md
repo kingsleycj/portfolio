@@ -160,11 +160,29 @@ CSS variables and mapped to `--font-*` theme tokens.
 
 Syne ships as static weights, so there is **no variable axis to set** — any
 `font-variation-settings` here is dead code. Syne 800 also sets far wider than a
-grotesque at the same size, which is why `text-display` tops out at 7rem rather than 9.
+grotesque at the same size, which is why `text-display` tops out at 6rem.
+
+**Size the masthead to a measure, not to the column edge.** At 7rem "Kingsley" set
+~702px against a 668px column — it overflowed into the portrait, which is what read as
+stretched. At 6rem it lands near 90%, which leaves the line somewhere to breathe. If
+you retune this, measure the *glyph extent* (first letter's left to last letter's
+right): the line spans are `display: block`, so their box is the column and tells you
+nothing about the type.
+
+### Swapping the masthead
+
+`masthead` in `src/content/profile.ts` holds the two display lines and the second
+line's indent, deliberately separate from `profile.name` — metadata, JSON-LD, the
+footer and the résumé all keep the full legal name, so a display variant never touches
+what a search engine or a recruiter reads.
+
+A short second line needs a much bigger indent than a long one, or it just looks
+stranded. `"Nweke"` sits at `lg:ml-[13%]`; `"CJ"` wants `lg:ml-[58%]`, which right-aligns
+its edge with "Kingsley" and reads as a composed block rather than a floating word.
 
 | Role | Spec |
 | --- | --- |
-| Display (name) | Syne 800, `clamp(2.75rem, 13vw, 7rem)`, lh .88, tracking -.04em |
+| Display (name) | Syne 800, `clamp(2.75rem, 12vw, 6rem)`, lh .88, tracking -.05em |
 | Section h2 | Syne 700, `clamp(2.25rem, 5vw, 3.75rem)`, tracking -.02em |
 | h3 | Syne 600, `clamp(1.375rem, 2.5vw, 1.875rem)` |
 | Lead | Syne 400, `clamp(1.125rem, 1.6vw, 1.375rem)`, lh 1.6 |

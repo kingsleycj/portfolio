@@ -163,13 +163,18 @@
 @utility text-display {
   font-family: var(--font-display);
   font-weight: 800;
-  /* Syne 800 sets much wider than a grotesque at the same size, so the ceiling
-     is lower than it looks. The aggressive vw term still holds on small
-     screens, where the masthead should dominate and where keeping the name
-     larger than the portrait puts LCP on cheap text rather than an image. */
-  font-size: clamp(2.75rem, 13vw, 7rem);
+  /* Sized to a measure, not to the column edge. At 7rem the longest line filled
+     100% of its column — touching both sides is exactly what reads as
+     "stretched to fit" rather than confidently set. 6rem lands it near 85%,
+     which leaves the line somewhere to breathe.
+
+     Syne 800 sets much wider than a grotesque at the same size, so this ceiling
+     is lower than it looks. The aggressive vw term still holds on small screens,
+     where the masthead should dominate and where keeping the name larger than
+     the portrait puts LCP on cheap text rather than an image. */
+  font-size: clamp(2.75rem, 12vw, 6rem);
   line-height: 0.88;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.05em;
 }
 
 @utility text-h2 {
