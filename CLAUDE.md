@@ -169,6 +169,43 @@ you retune this, measure the *glyph extent* (first letter's left to last letter'
 right): the line spans are `display: block`, so their box is the column and tells you
 nothing about the type.
 
+### The masthead layout
+
+Horizontal: the name runs down the left at display scale inside a `lg:max-w-[58%]`
+column, with the portrait absolutely positioned to its right and vertically centred.
+
+Two alternatives were built and reverted, so don't rediscover them:
+
+- **Mirrored scenes** that slid text and portrait past each other every few seconds.
+  Swapping left and right read as the whole layout doing a 180° turn — disorienting
+  rather than alive.
+- **A vertical stack** with the portrait in flow between the name and the copy. The
+  column would not hold its alignment and the result read as a form.
+
+### The surname flip
+
+The second line turns over between `masthead.lines[1]` and `masthead.alternate` every
+7 seconds, rotating on a horizontal axis like a split-flap board: the outgoing word
+falls away from the reader as the incoming one arrives from behind. `perspective` on
+the line is what makes it read as a turn rather than a squash.
+
+Both words share **one line box** — the first in flow so the line keeps its height, the
+second absolute on top — so the flip can never reflow the masthead. State lives on a
+`data-flip` attribute rather than in React, so it costs no re-render; the animation is
+entirely CSS.
+
+**Alignment goes on the line container, never on either word.** Right-aligning the
+container is what makes both surnames resolve to the same edge whatever their length —
+so the flip turns in place instead of jumping sideways, and a different alternate needs
+no new number. It also keeps both clear of the portrait, which per-word indents did
+not: "CJ" once ran to x1052 against a portrait starting at x992.
+
+The container inherits the text column's 58% width, so `surnameLine` only needs to set
+alignment. Adding a width there as well nests one constraint inside another and pulls
+the surnames far too far left.
+
+Under reduced motion the timer never starts and the first surname stays.
+
 ### Swapping the masthead
 
 `masthead` in `src/content/profile.ts` holds the two display lines and the second
@@ -176,9 +213,9 @@ line's indent, deliberately separate from `profile.name` — metadata, JSON-LD, 
 footer and the résumé all keep the full legal name, so a display variant never touches
 what a search engine or a recruiter reads.
 
-A short second line needs a much bigger indent than a long one, or it just looks
-stranded. `"Nweke"` sits at `lg:ml-[13%]`; `"CJ"` wants `lg:ml-[58%]`, which right-aligns
-its edge with "Kingsley" and reads as a composed block rather than a floating word.
+`surnameLine` styles the second line's *container*, so both surnames share an
+alignment rather than each carrying its own indent. See "The surname flip" above for
+why that matters.
 
 | Role | Spec |
 | --- | --- |

@@ -353,6 +353,45 @@
   border-color: var(--color-verdigris);
 }
 
+/* ------------------------------------------------------------------
+   Surname flip
+
+   The two words share one line box — the first in flow so the line keeps its
+   height, the second absolute on top — so swapping them can never reflow the
+   masthead. They turn on a horizontal axis, like a split-flap board: the
+   outgoing word falls away from the reader while the incoming one arrives from
+   behind. `perspective` on the line is what makes it read as a turn rather than
+   a squash.
+   ------------------------------------------------------------------ */
+.masthead-line {
+  perspective: 900px;
+  perspective-origin: 30% 50%;
+}
+
+.masthead-alt {
+  backface-visibility: hidden;
+  transform-origin: 50% 50%;
+  transition:
+    transform 780ms var(--ease-spring),
+    opacity 420ms var(--ease-out-soft);
+}
+
+/* Resting: the first word faces the reader, the second waits behind. */
+.masthead-alt[data-alt="1"] {
+  opacity: 0;
+  transform: rotateX(-96deg);
+}
+
+[data-flip="1"] .masthead-alt[data-alt="0"] {
+  opacity: 0;
+  transform: rotateX(96deg);
+}
+
+[data-flip="1"] .masthead-alt[data-alt="1"] {
+  opacity: 1;
+  transform: none;
+}
+
 /* The portrait sits in its own perspective and tips toward the cursor, so it
    reads as a card standing in the scene rather than a picture pasted on it. */
 .portrait-stage {
@@ -871,6 +910,15 @@
   .timeline-node {
     transition: none !important;
     transform: none !important;
+  }
+
+  /* No flipping, and the first surname stays put. */
+  .masthead-alt {
+    transition: none !important;
+  }
+
+  .masthead-alt[data-alt="1"] {
+    opacity: 0 !important;
   }
 
   /* The rotator would flicker through its words at 0.01ms. Pin it to the

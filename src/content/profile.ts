@@ -26,12 +26,16 @@ export const rotatorWords = [
  * full legal name. Swap the second line here to try a variant without touching
  * anything that search engines or a recruiter's PDF will read.
  *
- * `indent` is how far the second line is thrown off the grid on large screens.
- * A short second line wants a bigger push — otherwise it just looks stranded.
+ * `surnameLine` styles the second line's *container*, not either word, so both
+ * surnames share one alignment: right-aligned to the text column's edge, which
+ * already stops short of the portrait. The flip therefore turns in place rather
+ * than jumping sideways, and a longer or shorter alternate needs no new number.
  */
 export const masthead = {
   lines: ["Kingsley", "Nweke"],
-  indent: "lg:ml-[13%]",
+  surnameLine: "lg:text-right",
+  /** Flips in and out of the second line on a timer. */
+  alternate: "CJ",
 } as const;
 
 export const profile = {

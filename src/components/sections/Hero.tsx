@@ -16,16 +16,20 @@ import {
 } from "@/content/profile";
 
 /**
- * An editorial masthead rather than a two-column split.
+ * An editorial masthead: the name runs down the left at display scale and reacts
+ * to the cursor, with the portrait in an arch beside it — byline-sized on
+ * mobile, full height from `lg` up, which also keeps it smaller than the
+ * headline so LCP lands on cheap text rather than on an image.
  *
- * The name runs down the left at display scale with the second word thrown off
- * the grid, and reacts to the cursor. The portrait sits in an arch beside it —
- * byline-sized on mobile, full height from `lg` up, which also keeps it smaller
- * than the headline so LCP lands on cheap text rather than on an image.
+ * A vertical stack was tried and reverted: with the portrait in flow the column
+ * would not hold its alignment, and the arrangement read as a form.
  *
- * Everything enters via CSS keyframes rather than Motion, so the largest text is
- * painted straight from the server response: no hydration wait, and it degrades
- * to plain visible text with JavaScript off.
+ * The surname turns over between `masthead.lines[1]` and `masthead.alternate`.
+ * Both words share a single line box, so the flip can never reflow the masthead.
+ *
+ * Entrances are CSS keyframes rather than Motion, so the largest text is painted
+ * straight from the server response: no hydration wait, and it degrades to plain
+ * visible text with JavaScript off.
  */
 export function Hero() {
   return (
@@ -53,12 +57,11 @@ export function Hero() {
         </div>
 
         <div className="relative mt-8 lg:mt-10">
+          {/* A solid arch sits behind the photo rather than a thin outline offset
+              from it: the old hairline read as a stray stroke where it left the
+              curve, and because the block stays put while the card tips on hover
+              it doubles as the depth cue. */}
           <div className="portrait-stage mb-10 w-32 sm:w-40 lg:absolute lg:right-0 lg:top-1/2 lg:mb-0 lg:w-[19rem] lg:-translate-y-1/2 xl:w-[22rem]">
-            {/* A solid arch sitting behind the photo rather than a thin outline
-                offset from it. The old hairline read as a stray stroke where it
-                left the curve; a printed colour block reads as intentional, and
-                because it stays put while the card tips on hover it doubles as
-                the depth cue. */}
             <div className="portrait-card relative -rotate-2">
               <div
                 aria-hidden="true"
@@ -85,7 +88,8 @@ export function Hero() {
           >
             <KineticName
               lines={[...masthead.lines]}
-              lineClassNames={[undefined, masthead.indent]}
+              lineClassNames={[undefined, masthead.surnameLine]}
+              alternate={masthead.alternate}
             />
           </h1>
         </div>

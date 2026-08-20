@@ -11,7 +11,17 @@ interface KineticNameProps {
   /** Extra classes per line, positionally. Plain data — this crosses the
       server/client boundary, so it cannot be a function. */
   lineClassNames?: (string | undefined)[];
+  /**
+   * A second word for the final line, cross-faded with the first as the hero
+   * changes scene. Both are rendered and stacked, so swapping them cannot
+   * reflow the masthead — and both take the cursor effect, since the letters
+   * are in the DOM either way.
+   */
+  alternate?: string;
 }
+
+/** Seconds each surname holds before the line turns over. */
+const FLIP_SECONDS = 7;
 
 /** How far a letter lifts at the cursor's exact position, in px. */
 const MAX_LIFT = 16;
@@ -35,8 +45,28 @@ export function KineticName({
   lines,
   className,
   lineClassNames,
+  alternate,
 }: KineticNameProps) {
   const rootRef = useRef<HTMLSpanElement>(null);
+  const flipRef = useRef<HTMLSpanElement>(null);
+
+  /**
+   * The surname turns over on a timer. State lives on a data attribute rather
+   * than in React so the flip costs no re-render — the animation itself is CSS.
+   */
+  useEffect(() => {
+    const line = flipRef.current;
+    if (!line || alternate === undefined) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let flipped = false;
+    const timer = window.setInterval(() => {
+      flipped = !flipped;
+      line.dataset.flip = flipped ? "1" : "0";
+    }, FLIP_SECONDS * 1000);
+
+    return () => window.clearInterval(timer);
+  }, [alternate]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -117,31 +147,72 @@ export function KineticName({
       document.removeEventListener("pointerleave", onLeave);
       if (frame !== null) cancelAnimationFrame(frame);
     };
-  }, [lines]);
+  }, [lines, alternate]);
+
+  const letters = (word: string) =>
+    word.split("").map((char, i) => (
+      <span
+        key={`${char}-${i}`}
+        data-letter
+        className="inline-block will-change-transform"
+        style={{
+          transition: "transform 260ms var(--ease-spring), color 260ms linear",
+        }}
+      >
+        {char}
+      </span>
+    ));
+
+  const lastIndex = lines.length - 1;
 
   return (
     <span ref={rootRef} className={cn("block", className)}>
-      {lines.map((line, lineIdx) => (
-        <span
-          key={line}
-          aria-hidden="true"
-          className={cn("block whitespace-nowrap", lineClassNames?.[lineIdx])}
-        >
-          {line.split("").map((char, i) => (
+      {lines.map((line, lineIdx) => {
+        if (alternate === undefined || lineIdx !== lastIndex) {
+          return (
             <span
-              key={`${char}-${i}`}
-              data-letter
-              className="inline-block will-change-transform"
-              style={{
-                transition:
-                  "transform 260ms var(--ease-spring), color 260ms linear",
-              }}
+              key={line}
+              aria-hidden="true"
+              className={cn(
+                "block whitespace-nowrap",
+                lineClassNames?.[lineIdx],
+              )}
             >
-              {char}
+              {letters(line)}
             </span>
-          ))}
-        </span>
-      ))}
+          );
+        }
+
+        // Both words share one line box: the first stays in flow so the line
+        // keeps its height, the second sits absolutely on top of it. Swapping
+        // them therefore cannot reflow anything.
+        //
+        // The class goes on the *container*, not on either word, so alignment
+        // is shared: both surnames resolve to the same edge whatever their
+        // length, and the flip turns in place instead of jumping sideways.
+        return (
+          <span
+            key={line}
+            ref={flipRef}
+            data-flip="0"
+            aria-hidden="true"
+            className={cn(
+              "masthead-line relative block",
+              lineClassNames?.[lineIdx],
+            )}
+          >
+            <span data-alt="0" className="masthead-alt block whitespace-nowrap">
+              {letters(line)}
+            </span>
+            <span
+              data-alt="1"
+              className="masthead-alt absolute inset-x-0 top-0 whitespace-nowrap"
+            >
+              {letters(alternate)}
+            </span>
+          </span>
+        );
+      })}
     </span>
   );
 }
