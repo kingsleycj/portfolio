@@ -104,14 +104,18 @@ Two rules that must hold:
 2. **Colour is never the only signal.** AI-tagged items also say "AI/ML" in text and
    carry a different marker shape (dot for AI, diamond for software), so the
    distinction survives colour-blindness and greyscale printing.
-3. **Never put a typeface on `line` or `line-strong`.** They are hairline colours; at
+3. **Never apply an opacity modifier to a text colour token.** Every ink token is
+   tuned to sit just above its contrast floor, so `text-ink-faint/70` silently
+   re-picks the colour and lands under it — that shipped once and axe caught it at
+   3:1. If you need a quieter tone, add a token with a measured value.
+4. **Never put a typeface on `line` or `line-strong`.** They are hairline colours; at
    display sizes they fail contrast. The 56px project numerals use `watermark`, which
    clears the 3:1 floor for large text while still reading as a watermark.
-4. **Marigold is decorative and carries no meaning.** It is 2.1:1 on paper — it must
+5. **Marigold is decorative and carries no meaning.** It is 2.1:1 on paper — it must
    never hold text, and it must never encode software-vs-AI. That split belongs to
    terracotta and verdigris alone. Marigold is for the highlight swash, the loader hub
    and selection: energy, not information.
-5. **Never use `paper`/`ink` on the espresso band.** Those two invert with the theme,
+6. **Never use `paper`/`ink` on the espresso band.** Those two invert with the theme,
    but the band is dark in *both* themes — `text-paper` there goes black-on-black the
    moment dark mode is on. Use `on-espresso` / `on-espresso-soft`, which stay light
    always. This was a real bug, caught by axe, not by eye.
@@ -231,13 +235,15 @@ Tailwind's `@utility` in `globals.css` — not in a components layer — so they
 with variants. `text-h3 sm:text-h2` is valid, and the contact address relies on it.
 Use them instead of re-specifying sizes per component.
 
-**Font loading decisions**, both measured rather than assumed:
+**Font loading decisions**, measured rather than assumed:
 
-- Bricolage requests only the `wdth` axis. Adding `opsz` took the file from 78KB to
-  128KB, and the type scale never varied it.
-- Every face stays preloaded. Deferring JetBrains Mono saved ~22KB but pushed CLS from
-  0 to 0.09 as the meta labels reflowed; deferring Inter measured *no* LCP change
+- Both faces stay preloaded. Deferring the mono saved ~22KB but pushed CLS from 0 to
+  0.09 as the meta labels reflowed; deferring the body face measured *no* LCP change
   (3.50s either way) and only moved the noisy TBT number. Neither is worth taking.
+  Both were measured on the previous pairing, but the trade is unchanged.
+- **The colophon in `Footer.tsx` names the typefaces in prose.** Change the fonts and
+  that line silently becomes a lie — it was stale for several rounds before anyone
+  noticed. Treat it as part of the font configuration, not as copy.
 
 ### Motion
 

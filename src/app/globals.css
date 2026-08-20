@@ -442,6 +442,62 @@
 }
 
 /* ------------------------------------------------------------------
+   Footer wordmark
+
+   Stroked rather than filled, and clipped by the page's bottom edge, so it
+   reads as a mark stamped on the page instead of very large text. Drawn in SVG
+   so `textLength` can hold it to the full column width whatever the font
+   metrics do — and so a faint outline is not mistaken for unreadable body copy.
+   ------------------------------------------------------------------ */
+.footer-wordmark {
+  /* Sinks the baseline past the page edge so the letters are genuinely cut.
+     Roughly a third is hidden — enough to read as deliberate cropping, while
+     clipping more makes it look like it merely failed to fit. */
+  margin-bottom: -1.4rem;
+}
+
+@media (min-width: 768px) {
+  .footer-wordmark {
+    margin-bottom: -2.4rem;
+  }
+}
+
+.footer-wordmark-text {
+  font-family: var(--font-display);
+  font-weight: 800;
+  /* "KINGSLEY" in Syne 800 advances 8.23 viewBox units per px of font-size, so
+     121px puts its natural width at ~996 against a textLength of 1000 —
+     `lengthAdjust` then moves spacing by well under a unit per gap. Change the
+     word and this number has to be re-measured, or the glyphs overlap. */
+  font-size: 121px;
+  letter-spacing: -0.03em;
+  fill: none;
+  stroke: var(--color-watermark);
+  stroke-width: 1.25;
+  paint-order: stroke;
+}
+
+/* A stroke that reads at 3.5% on paper disappears entirely on the dark ground,
+   so it thickens and lifts in dark mode. */
+[data-theme="dark"] .footer-wordmark-text {
+  stroke: var(--color-watermark);
+  stroke-width: 1.5;
+}
+
+/* Availability pip — a slow breath, not a blink. */
+@keyframes pip-breathe {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.72);
+  }
+}
+
+/* ------------------------------------------------------------------
    Film grain
 
    A single tiled noise tile at very low opacity, fixed over the whole
@@ -816,6 +872,10 @@
 
   .marquee-track {
     animation: marquee-slide 42s linear infinite;
+  }
+
+  .status-pip {
+    animation: pip-breathe 2.8s ease-in-out infinite;
   }
 
   .prism {

@@ -9,7 +9,7 @@ export const contentType = "image/png";
 /**
  * Social card, generated at build time.
  *
- * Deliberately uses the bundled default typeface rather than fetching Bricolage:
+ * Deliberately uses the bundled default typeface rather than fetching Syne:
  * Satori can't read WOFF2, so a custom face would mean shipping a TTF and a
  * network fetch during build for a 1200×630 image nobody reads closely. The
  * palette and layout carry the identity instead.
