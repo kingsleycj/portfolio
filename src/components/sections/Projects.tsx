@@ -1,4 +1,5 @@
 import { ArrowMark, NodeGraph } from "@/components/art/Marks";
+import { HorizontalScroller } from "@/components/motion/HorizontalScroller";
 import { Reveal } from "@/components/motion/Reveal";
 import { RevealGroup, RevealItem } from "@/components/motion/RevealGroup";
 import { Spotlight } from "@/components/motion/Spotlight";
@@ -7,6 +8,17 @@ import { ThreadTag } from "@/components/ui/ThreadTag";
 import { projects, secondaryProjects } from "@/content/projects";
 import { cn } from "@/lib/cn";
 
+/**
+ * The case studies run on a horizontal rail rather than stacking down the page.
+ *
+ * Each panel is restructured into a single column — the alternating two-column
+ * layout the vertical version used has nowhere to alternate at rail width.
+ *
+ * Panels deliberately do **not** use `Reveal`. Anything off to the right sits
+ * outside the viewport, so an in-view reveal would hold it at `opacity: 0`
+ * until scrolled to — which reads as broken content the moment someone arrives
+ * by keyboard or deep link.
+ */
 export function Projects() {
   return (
     <section
@@ -19,50 +31,47 @@ export function Projects() {
           id="projects-heading"
           index="03"
           eyebrow="Selected work"
-          title="Four I’d happily be quizzed on"
+          title="Four I&rsquo;d happily be quizzed on"
           lead="Not a link dump. What each one does, the bit that was genuinely hard, and where it honestly stands today."
         />
+      </div>
 
-        <div className="mt-16 md:mt-20">
+      <HorizontalScroller
+        label="Selected work — scroll sideways to move between projects"
+        className="mt-14 md:mt-16"
+      >
+        <ul className="hscroll-track">
           {projects.map((project, index) => {
-            const leadThread = project.threads[0];
-            const isAi = leadThread === "ai";
-            // Alternate which side the metadata column sits on, so the eye
-            // doesn't settle into a single repeating column.
-            const metaFirst = index % 2 === 0;
+            const isAi = project.threads[0] === "ai";
 
             return (
-              <Reveal
-                key={project.slug}
-                className={metaFirst ? "reveal-left" : "reveal-right"}
-              >
+              <li key={project.slug} className="hscroll-panel">
                 <Spotlight
                   tint={
-                    isAi
-                      ? "var(--color-verdigris)"
-                      : "var(--color-terracotta)"
+                    isAi ? "var(--color-verdigris)" : "var(--color-terracotta)"
                   }
+                  className="h-full"
                 >
-                  <article className="grid gap-8 border-t border-line py-14 lg:grid-cols-12 lg:gap-12 lg:py-20">
-                    <div
-                      className={cn(
-                        "lg:col-span-4",
-                        metaFirst ? "lg:order-1" : "lg:order-2 lg:col-start-9",
-                      )}
-                    >
+                  {/* Two columns from lg: meta on the left, the case study on
+                      the right. A single column at panel width ran ~1089px
+                      tall — taller than most viewports, which would mean
+                      scrolling vertically to read one panel and horizontally to
+                      reach the next. */}
+                  <article className="grid h-full gap-x-10 gap-y-6 rounded-[2rem_0.75rem_2rem_0.75rem] border border-line bg-paper-deep/40 p-7 md:p-9 lg:grid-cols-12">
+                    <div className="lg:col-span-4">
                       <div className="flex items-start justify-between gap-4">
                         <p
                           aria-hidden="true"
-                          className="text-display -rotate-[1.5deg] text-[3.5rem] leading-none text-watermark"
+                          className="text-display -rotate-[1.5deg] text-[3rem] leading-none text-watermark"
                         >
                           {String(index + 1).padStart(2, "0")}
                         </p>
                         {isAi ? (
-                          <NodeGraph className="mt-1 text-verdigris" />
+                          <NodeGraph className="mt-1 shrink-0 text-verdigris" />
                         ) : null}
                       </div>
 
-                      <p className="text-meta mt-6 text-ink-faint">
+                      <p className="text-meta mt-5 text-ink-faint">
                         {project.period}
                       </p>
 
@@ -74,18 +83,12 @@ export function Projects() {
                         ))}
                       </ul>
 
-                      {/* A label, not a heading: on alternating rows this column
-                          precedes the project's own h3 in the DOM, so a heading
-                          here would break sequential heading order. The list is
-                          associated with it by aria-labelledby instead. */}
                       <p
                         id={`${project.slug}-stack-label`}
                         className="text-meta mt-8 text-ink-faint"
                       >
                         Built with
                       </p>
-                      {/* Separated by middots — entries like "Node.js 22" and
-                          "Anchor (Rust)" run together on whitespace alone. */}
                       <ul
                         aria-labelledby={`${project.slug}-stack-label`}
                         className="mt-3 flex flex-wrap gap-y-1"
@@ -101,12 +104,7 @@ export function Projects() {
                       </ul>
                     </div>
 
-                    <div
-                      className={cn(
-                        "lg:col-span-7",
-                        metaFirst ? "lg:order-2 lg:col-start-6" : "lg:order-1",
-                      )}
-                    >
+                    <div className="flex flex-col lg:col-span-8">
                       <h3 className="text-h2 text-ink">{project.name}</h3>
                       <p
                         className={cn(
@@ -117,7 +115,7 @@ export function Projects() {
                         {project.tagline}
                       </p>
 
-                      <div className="prose-narrow mt-7 space-y-5">
+                      <div className="mt-6 space-y-4">
                         {project.body.map((paragraph) => (
                           <p key={paragraph} className="text-ink-soft">
                             {paragraph}
@@ -125,47 +123,53 @@ export function Projects() {
                         ))}
                       </div>
 
-                      {project.status ? (
-                        <p className="prose-narrow mt-7 -rotate-[0.4deg] rounded-[1.5rem_0.75rem_1.5rem_0.75rem] border border-dashed border-line-strong bg-paper-deep/60 px-5 py-4 text-sm text-ink-soft">
-                          <span className="text-meta mr-2 text-ink-faint">
-                            Status
-                          </span>
-                          {project.status}
-                        </p>
-                      ) : null}
+                      {/* Pushed down so status and links sit on the same line
+                          across panels, however long the copy runs. */}
+                      <div className="mt-auto pt-7">
+                        {project.status ? (
+                          <p className="-rotate-[0.4deg] rounded-[1.5rem_0.75rem_1.5rem_0.75rem] border border-dashed border-line-strong bg-paper/60 px-5 py-4 text-sm text-ink-soft">
+                            <span className="text-meta mr-2 text-ink-faint">
+                              Status
+                            </span>
+                            {project.status}
+                          </p>
+                        ) : null}
 
-                      {project.links.length > 0 ? (
-                        <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-3">
-                          {project.links.map((link) => (
-                            <li key={link.href}>
-                              <a
-                                href={link.href}
-                                target="_blank"
-                                rel="noreferrer"
-                                data-cursor="Open"
-                                className="text-meta group inline-flex items-center gap-2 text-ink transition-colors duration-200 hover:text-terracotta-deep"
-                              >
-                                <span className="border-b border-line-strong pb-0.5 transition-colors duration-200 group-hover:border-terracotta">
-                                  {link.label}
-                                </span>
-                                <ArrowMark className="h-3.5 w-3.5 -rotate-45 transition-transform duration-300 group-hover:translate-x-0.5" />
-                                <span className="sr-only">
-                                  ({project.name}, opens in a new tab)
-                                </span>
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : null}
+                        {project.links.length > 0 ? (
+                          <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-3">
+                            {project.links.map((link) => (
+                              <li key={link.href}>
+                                <a
+                                  href={link.href}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  data-cursor="Open"
+                                  className="text-meta group inline-flex items-center gap-2 text-ink transition-colors duration-200 hover:text-terracotta-deep"
+                                >
+                                  <span className="border-b border-line-strong pb-0.5 transition-colors duration-200 group-hover:border-terracotta">
+                                    {link.label}
+                                  </span>
+                                  <ArrowMark className="h-3.5 w-3.5 -rotate-45 transition-transform duration-300 group-hover:translate-x-0.5" />
+                                  <span className="sr-only">
+                                    ({project.name}, opens in a new tab)
+                                  </span>
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null}
+                      </div>
                     </div>
                   </article>
                 </Spotlight>
-              </Reveal>
+              </li>
             );
           })}
-        </div>
+        </ul>
+      </HorizontalScroller>
 
-        {/* Earlier work — listed for completeness, not given a case study. */}
+      {/* Earlier work — listed for completeness, not given a case study. */}
+      <div className="wrap">
         <Reveal className="mt-20 border-t border-line pt-14">
           <h3 className="text-h3 text-ink">And a few more</h3>
           <RevealGroup as="ul" className="mt-8 grid gap-8 sm:grid-cols-2">

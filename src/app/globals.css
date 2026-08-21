@@ -442,6 +442,65 @@
 }
 
 /* ------------------------------------------------------------------
+   Horizontal rail (Projects)
+
+   Native overflow rather than scroll-jacking, so trackpad swipes, shift+wheel,
+   touch drags, arrow keys and the scrollbar all work unmodified.
+
+   **Only from `lg` up.** A panel holding a full case study runs ~1450px tall on
+   a phone, and a rail whose panels are twice the viewport height means reading
+   one thing needs vertical scrolling while moving between them needs
+   horizontal. Below `lg` it degrades to an ordinary vertical stack.
+   ------------------------------------------------------------------ */
+.hscroll-track {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-inline: 1.5rem;
+}
+
+.hscroll-panel {
+  flex: 0 0 auto;
+}
+
+@media (min-width: 768px) {
+  .hscroll-track {
+    padding-inline: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hscroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* `proximity`, not `mandatory`: mandatory fights anyone trying to stop
+       between two panels to read across them. */
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 3rem;
+    scrollbar-width: none;
+    /* Stops a sideways swipe triggering browser back-navigation. */
+    overscroll-behavior-x: contain;
+  }
+
+  .hscroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hscroll-track {
+    flex-direction: row;
+    align-items: stretch;
+    width: max-content;
+  }
+
+  .hscroll-panel {
+    scroll-snap-align: start;
+    /* Wide enough for the two-column layout inside, which is what keeps a
+       panel close to viewport height instead of double it. */
+    width: min(92vw, 58rem);
+  }
+}
+
+/* ------------------------------------------------------------------
    Custom cursor
 
    `mix-blend-mode: difference` inverts whatever sits behind the ring, so it

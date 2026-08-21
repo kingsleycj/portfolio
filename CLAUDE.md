@@ -307,6 +307,36 @@ layer, no repaint.
 Shared easings and variants live in `src/lib/motion.ts`. Import from there rather than
 writing per-component transition objects.
 
+### The projects rail
+
+Case studies run on a horizontal rail from `lg` up. Native `overflow-x`, not
+scroll-jacking — trackpad swipes, shift+wheel, touch drags, arrow keys and the
+scrollbar all work without being reimplemented, and nothing fights the page's own
+vertical scroll. `HorizontalScroller` adds only a progress bar.
+
+Four constraints that shaped it:
+
+- **The rail is `lg`-only.** A panel holding a full case study runs ~1450px tall on a
+  phone; a rail whose panels are twice the viewport height means scrolling vertically to
+  read one and horizontally to reach the next. Below `lg` it degrades to an ordinary
+  vertical stack.
+- **Panels are two-column and wide (`min(92vw, 58rem)`).** A single column at rail width
+  measured 1089px tall against a 950px viewport — same problem in miniature. Two columns
+  brought it to 765px, which fits.
+- **Panels must not use `Reveal`.** Anything off to the right is outside the viewport,
+  so an in-view reveal holds it at `opacity: 0` until scrolled to — which reads as
+  broken content to anyone arriving by keyboard or deep link.
+- **The container is focusable and labelled.** A scrollable region has to be reachable by
+  keyboard or nobody without a pointer can read past the first panel.
+
+Snap is `proximity`, not `mandatory`: mandatory fights anyone trying to stop between two
+panels to read across them. `overscroll-behavior-x: contain` stops a sideways swipe
+triggering browser back-navigation.
+
+Note for anyone testing: content inside the rail legitimately extends past the viewport.
+The check that matters is `document.documentElement.scrollWidth === window.innerWidth` —
+the *page* must never scroll sideways.
+
 ### The custom cursor
 
 `Cursor` replaces the pointer site-wide: a dot that tracks exactly, and a ring that
