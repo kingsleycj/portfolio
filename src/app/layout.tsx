@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Syne } from "next/font/google";
 
 import { Curtain } from "@/components/layout/Curtain";
+import { Cursor } from "@/components/motion/Cursor";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { RevealObserver } from "@/components/motion/RevealObserver";
 import { profile } from "@/content/profile";
@@ -146,6 +147,7 @@ export default function RootLayout({
         </a>
         <MotionProvider>{children}</MotionProvider>
         <RevealObserver />
+        <Cursor />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}

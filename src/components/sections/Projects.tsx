@@ -142,6 +142,7 @@ export function Projects() {
                                 href={link.href}
                                 target="_blank"
                                 rel="noreferrer"
+                                data-cursor="Open"
                                 className="text-meta group inline-flex items-center gap-2 text-ink transition-colors duration-200 hover:text-terracotta-deep"
                               >
                                 <span className="border-b border-line-strong pb-0.5 transition-colors duration-200 group-hover:border-terracotta">
@@ -176,6 +177,7 @@ export function Projects() {
                       href={project.href}
                       target="_blank"
                       rel="noreferrer"
+                      data-cursor="Open"
                       className="group inline-flex items-center gap-1.5 transition-colors duration-200 hover:text-terracotta-deep"
                     >
                       {project.name}

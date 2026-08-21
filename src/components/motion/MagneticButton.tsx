@@ -14,6 +14,8 @@ interface MagneticButtonProps {
   strength?: number;
   download?: boolean;
   external?: boolean;
+  /** Word shown inside the custom cursor's ring on hover. */
+  cursorLabel?: string;
 }
 
 /**
@@ -29,6 +31,7 @@ export function MagneticButton({
   strength = 8,
   download = false,
   external = false,
+  cursorLabel,
 }: MagneticButtonProps) {
   const ref = useRef<HTMLAnchorElement>(null);
   const reducedMotion = useReducedMotion();
@@ -64,6 +67,7 @@ export function MagneticButton({
       download={download || undefined}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
+      data-cursor={cursorLabel}
       style={{ x, y }}
       onPointerMove={handlePointerMove}
       onPointerLeave={reset}

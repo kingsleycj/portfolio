@@ -442,6 +442,100 @@
 }
 
 /* ------------------------------------------------------------------
+   Custom cursor
+
+   `mix-blend-mode: difference` inverts whatever sits behind the ring, so it
+   stays legible on paper, on the espresso band and over the portrait without
+   any of them having to know about it.
+   ------------------------------------------------------------------ */
+.cursor-ring,
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: difference;
+  will-change: transform;
+}
+
+.cursor-ring {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid #fff;
+  border-radius: 999px;
+  transition:
+    width 320ms var(--ease-spring),
+    height 320ms var(--ease-spring),
+    background-color 320ms var(--ease-out-soft),
+    opacity 220ms linear;
+}
+
+.cursor-dot {
+  width: 0.3rem;
+  height: 0.3rem;
+  background-color: #fff;
+  border-radius: 999px;
+  transition: opacity 220ms linear;
+}
+
+.cursor-ring.is-visible,
+.cursor-dot.is-visible {
+  opacity: 1;
+}
+
+/* Over anything interactive the ring swells and fills faintly. */
+.cursor-ring.is-active {
+  width: 4rem;
+  height: 4rem;
+  background-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Carrying a word, it stops being a blended ring and becomes a solid disc.
+   Difference-blending white text over a difference-blended ring inverts it
+   twice and the label turns to mud — this is legible, and it reads as a
+   deliberate state rather than the same ring slightly bigger. */
+.cursor-ring.has-label {
+  width: 5.25rem;
+  height: 5.25rem;
+  mix-blend-mode: normal;
+  background-color: var(--color-ink);
+  border-color: transparent;
+}
+
+.cursor-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 200ms linear;
+}
+
+.cursor-ring.has-label .cursor-label {
+  opacity: 1;
+  color: var(--color-paper);
+}
+
+/* The dot would sit inside the disc and just add noise. */
+.cursor-dot.is-hidden {
+  opacity: 0;
+}
+
+/* Only once the cursor is confirmed running — touch devices, reduced-motion
+   readers and anyone without JavaScript keep the system cursor, which some
+   people have deliberately configured. */
+.has-custom-cursor,
+.has-custom-cursor a,
+.has-custom-cursor button {
+  cursor: none;
+}
+
+/* ------------------------------------------------------------------
    Footer wordmark
 
    Stroked rather than filled, and clipped by the page's bottom edge, so it

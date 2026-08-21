@@ -307,6 +307,31 @@ layer, no repaint.
 Shared easings and variants live in `src/lib/motion.ts`. Import from there rather than
 writing per-component transition objects.
 
+### The custom cursor
+
+`Cursor` replaces the pointer site-wide: a dot that tracks exactly, and a ring that
+follows with lag and swells over anything interactive. It is distinct from the other
+cursor work — `Spotlight` lights a card, `MagneticButton` pulls one element,
+`KineticName` bends the masthead — this is the pointer itself.
+
+Elements opt into a word with `data-cursor="Open"`; anything else interactive gets the
+swell. `MagneticButton` forwards it as a `cursorLabel` prop.
+
+Four things to preserve:
+
+- **One rAF loop, transform only, state written to `classList`.** Moving the mouse must
+  never trigger a React render.
+- **`mix-blend-mode: difference`** on the ring, so it inverts whatever is behind it and
+  stays visible on paper, on the espresso band and over the portrait without any of
+  them knowing about it.
+- **The labelled state drops the blend** and becomes a solid `ink` disc with `paper`
+  text. Difference-blending white text inside a difference-blended ring inverts it
+  twice and the label turns to mud — that was the first attempt.
+- **The native cursor is hidden only once this is confirmed running** (`has-custom-cursor`
+  on `<html>`). Touch devices, reduced-motion readers and anyone without JavaScript keep
+  the system cursor, which some people have deliberately configured for visibility.
+  Verified: both fallbacks leave `cursor: auto` and the ring at opacity 0.
+
 ### The 3D hero
 
 `HeroStage` establishes a perspective and publishes the pointer as `--px` / `--py`

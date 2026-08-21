@@ -37,6 +37,7 @@ export function Contact() {
         <Reveal className="reveal-swell mt-12">
           <a
             href={`mailto:${profile.email}`}
+            data-cursor="Say hi"
             className="text-h3 sm:text-h2 group inline-flex flex-wrap items-center gap-3 break-words text-ink transition-colors duration-200 hover:text-terracotta-deep"
           >
             {profile.email}

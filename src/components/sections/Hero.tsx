@@ -128,6 +128,7 @@ export function Hero() {
               href={profile.resumePath}
               download
               strength={5}
+              cursorLabel="Download"
               className="text-meta w-full justify-center rounded-full border border-line-strong px-6 py-4 text-ink transition-colors duration-200 hover:border-terracotta hover:text-terracotta-deep sm:w-auto"
             >
               Take my résumé
