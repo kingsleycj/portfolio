@@ -317,7 +317,19 @@ cursor work — `Spotlight` lights a card, `MagneticButton` pulls one element,
 Elements opt into a word with `data-cursor="Open"`; anything else interactive gets the
 swell. `MagneticButton` forwards it as a `cursorLabel` prop.
 
-Four things to preserve:
+Scrolling deforms it: the ring stretches along the axis of travel, squashes across it
+(volume roughly preserved, so it reads as deformation rather than a resize) and is
+tugged a few pixels in the direction you are going, then eases back to a circle. The
+amount comes from scroll **velocity**, so a flick reads differently from a slow drag,
+and the tug flips sign between scrolling up and down.
+
+**Velocity is sampled inside the rAF loop, not in the scroll listener.** The listener
+only wakes the loop. Sampling per event gives you a pile of deltas whose size depends
+on how often the browser fires, which is not a velocity. The loop also has to keep
+running until the velocity has decayed, or the ring freezes mid-stretch — that is what
+the `settled` check covers.
+
+Five things to preserve:
 
 - **One rAF loop, transform only, state written to `classList`.** Moving the mouse must
   never trigger a React render.
@@ -327,6 +339,8 @@ Four things to preserve:
 - **The labelled state drops the blend** and becomes a solid `ink` disc with `paper`
   text. Difference-blending white text inside a difference-blended ring inverts it
   twice and the label turns to mud — that was the first attempt.
+- **The deformation is skipped while the ring carries a label**, since scaling the disc
+  would scale the word inside it.
 - **The native cursor is hidden only once this is confirmed running** (`has-custom-cursor`
   on `<html>`). Touch devices, reduced-motion readers and anyone without JavaScript keep
   the system cursor, which some people have deliberately configured for visibility.

@@ -17,6 +17,10 @@ import { useEffect, useRef } from "react";
  *
  * - One rAF loop, transform-only, and state is written to `classList` rather
  *   than React state, so moving the mouse costs no re-renders.
+ * - Scrolling deforms the ring: it stretches along the axis of travel and is
+ *   tugged slightly in the direction you are going, then eases back to a circle
+ *   when you stop. The amount comes from scroll velocity, so a flick reads
+ *   differently from a slow drag.
  * - `mix-blend-mode: difference` means the ring inverts whatever is behind it,
  *   so it stays visible on paper, on the espresso band and over the portrait
  *   without needing to know which.
@@ -51,18 +55,54 @@ export function Cursor() {
     let frame: number | null = null;
     let visible = false;
 
+    /** Scroll velocity in px/frame, smoothed and decayed toward rest. */
+    let lastScrollY = window.scrollY;
+    let velocity = 0;
+
+    /** Above this speed the deformation is at full strength. */
+    const MAX_SPEED = 55;
+
     const render = () => {
       // The ring eases toward the pointer while the dot pins to it exactly —
       // the gap between them is what gives the cursor a sense of weight.
       ringX += (targetX - ringX) * 0.18;
       ringY += (targetY - ringY) * 0.18;
-      ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+
+      // Sample scroll here rather than in the listener: one reading per frame
+      // is what makes this a velocity instead of a pile of deltas.
+      const currentY = window.scrollY;
+      const delta = currentY - lastScrollY;
+      lastScrollY = currentY;
+      // Ease toward the new delta, then bleed off, so the ring keeps a little
+      // momentum after the scroll stops rather than snapping back.
+      velocity += (delta - velocity) * 0.25;
+      velocity *= 0.9;
+
+      const strength = Math.min(Math.abs(velocity) / MAX_SPEED, 1);
+      // Squash across, stretch along — volume roughly preserved, which is what
+      // makes it read as a deformation rather than a resize.
+      const scaleY = 1 + strength * 0.45;
+      const scaleX = 1 - strength * 0.24;
+      // Tugged in the direction of travel.
+      const drag = Math.sign(velocity) * strength * 12;
+
+      const deform =
+        strength > 0.01 && !ring.classList.contains("has-label")
+          ? ` scale(${scaleX.toFixed(3)}, ${scaleY.toFixed(3)})`
+          : "";
+
+      ring.style.transform = `translate3d(${ringX}px, ${ringY + drag}px, 0) translate(-50%, -50%)${deform}`;
       dot.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) translate(-50%, -50%)`;
 
-      if (Math.abs(targetX - ringX) > 0.1 || Math.abs(targetY - ringY) > 0.1) {
-        frame = requestAnimationFrame(render);
-      } else {
+      const settled =
+        Math.abs(targetX - ringX) <= 0.1 &&
+        Math.abs(targetY - ringY) <= 0.1 &&
+        Math.abs(velocity) <= 0.05;
+
+      if (settled) {
         frame = null;
+      } else {
+        frame = requestAnimationFrame(render);
       }
     };
 
@@ -117,6 +157,13 @@ export function Cursor() {
       dot.classList.remove("is-visible", "is-hidden");
     };
 
+    // The listener only wakes the loop; the velocity itself is sampled there.
+    const onScroll = () => {
+      if (!visible) return;
+      schedule();
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("pointerover", onOver);
     document.addEventListener("pointerout", onOut);
@@ -124,6 +171,7 @@ export function Cursor() {
 
     return () => {
       document.documentElement.classList.remove("has-custom-cursor");
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerover", onOver);
       document.removeEventListener("pointerout", onOut);
